@@ -1,0 +1,27 @@
+Package: libtinyxml2-dev
+Source: tinyxml2
+Version: 4.0.1-1
+Architecture: armhf
+Maintainer: Mark Charlebois <charlebm@gmail.com>
+Original-Maintainer: Chow Loong Jin <hyperair@debian.org>
+Installed-Size: 80
+Depends: libtinyxml2-4 (= 4.0.1-1)
+Section: libdevel
+Priority: extra
+Multi-Arch: same
+Homepage: http://www.grinninglizard.com/tinyxml2/
+Description: TinyXML2 library - header and static library
+ This package contains the header file and a static version of the
+ TinyXML2 library.
+ .
+ TinyXML2 is a simple and small C++ XML parser that can be easily integrating
+ into other programs. It reads XML and creates C++ objects representing the XML
+ document. The objects can be manipulated, changed, and saved again as XML.
+ .
+ TinyXML2 supersedes the previous TinyXML library, with various improvements:
+  - Fewer memory allocations (1% - 10% compared to TinyXML)
+  - Uses less memory (about 40% of that used by TinyXML)
+  - Faster
+  - No STL requirement
+  - More modern C++, including a proper namespace
+  - Proper and useful handling of whitespace

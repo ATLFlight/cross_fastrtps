@@ -1,9 +1,11 @@
-all: submodules fastrtps-arm-cross
+all: submodules fastcdr-arm-cross tinyxml2-arm-cross fastrtps-arm-cross 
 
 TOPDIR=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-ARMINSTALLDIR:=${TOPDIR}/arminstalldir
+FASTRTPSINSTALLDIR:=${TOPDIR}/fastrtpsinstalldir
+FASTCDRINSTALLDIR:=${TOPDIR}/fastcdrinstalldir
+TINYXMLINSTALLDIR:=${TOPDIR}/tinyxml2installdir
 
-.PHONY: deps submodules clean push-fastrtps
+.PHONY: deps submodules fastcdr-arm-cross tinyxml2-arm-cross fastrtps-arm-cross clean push-fastrtps
 
 # Set up the cross build environment via https://github.com/ATLFlight/cross_toolchain
 define checkenv
@@ -20,33 +22,65 @@ submodules:
 	git submodule update --init --recursive
 
 clean:
-	rm -rf ${ARMINSTALLDIR} build_fastrtps build_tinyxml2 build_fastcdr
+	rm -rf ${FASTRTPSINSTALLDIR} ${FASTCDRINSTALLDIR} build_fastrtps build_tinyxml2 build_fastcdr
+	rm -f *.deb
 
-${ARMINSTALLDIR}:
+${FASTRTPSINSTALLDIR} ${FASTCDRINSTALLDIR} ${TINYXMLINSTALLDIR}:
 	mkdir -p $@
 
-${ARMINSTALLDIR}/usr/local/lib/libtinyxml2.so: Fast-RTPS deps ${ARMINSTALLDIR}
+${TINYXMLINSTALLDIR}/usr/local/lib/libtinyxml2.so tinyxml2-arm-cross: Fast-RTPS deps ${TINYXMLINSTALLDIR}
 	$(call checkenv)
 	(mkdir -p build_tinyxml2)
 	(cd build_tinyxml2 && cmake -DCMAKE_TOOLCHAIN_FILE=../cmake_hexagon/toolchain/Toolchain-arm-linux-gnueabihf.cmake ../Fast-RTPS/thirdparty/tinyxml2)
-	(cd build_tinyxml2 && make VERBOSE=1 DESTDIR=${ARMINSTALLDIR} install)
+	(cd build_tinyxml2 && make VERBOSE=1 DESTDIR=${TINYXMLINSTALLDIR} install)
+	mkdir -p ${TINYXMLINSTALLDIR}/usr/local/share/doc/tinyxml2
+	sed -n '286,1000p' Fast-RTPS/thirdparty/tinyxml2/readme.md > ${TINYXMLINSTALLDIR}/usr/local/share/doc/tinyxml2/copyright
 
-${ARMINSTALLDIR}/usr/local/lib/libfastcdr.so: Fast-CDR deps cmake_hexagon ${ARMINSTALLDIR}
+${FASTCDRINSTALLDIR}/usr/local/lib/libfastcdr.so fastcdr-arm-cross: Fast-CDR deps cmake_hexagon ${FASTCDRINSTALLDIR}
 	$(call checkenv)
 	mkdir -p build_fastcdr
 	(cd build_fastcdr && cmake -DCMAKE_TOOLCHAIN_FILE=../cmake_hexagon/toolchain/Toolchain-arm-linux-gnueabihf.cmake ../Fast-CDR)
-	(cd build_fastcdr && make DESTDIR=${ARMINSTALLDIR} install)
+	(cd build_fastcdr && make DESTDIR=${FASTCDRINSTALLDIR} install)
+	mkdir -p ${FASTCDRINSTALLDIR}/usr/local/share/doc/fastcdr
+	cp Fast-CDR/LICENSE ${FASTCDRINSTALLDIR}/usr/local/share/doc/fastcdr/LICENSE
 
-${ARMINSTALLDIR}/usr/local/lib/libfastrtps.so.1.4.0 fastrtps-arm-cross: ${ARMINSTALLDIR}/usr/local/lib/libtinyxml2.so deps cmake_hexagon
+${FASTRTPSINSTALLDIR}/usr/local/lib/libfastrtps.so.1.4.0 fastrtps-arm-cross: ${TINYXMLINSTALLDIR}/usr/local/lib/libtinyxml2.so deps cmake_hexagon
 	$(call checkenv)
 	mkdir -p build_fastrtps
-	(cd build_fastrtps && cmake -DCMAKE_TOOLCHAIN_FILE=../cmake_hexagon/toolchain/Toolchain-arm-linux-gnueabihf.cmake -DTHIRDPARTY=ON -DBUILD_JAVA=ON -DASIO_INCLUDE_DIR=`pwd`/../Fast-RTPS/thirdparty/asio/asio/include -DTINYXML2_INCLUDE_DIR=`pwd`/../Fast-RTPS/thirdparty/tinyxml2 -DTINYXML2_LIBRARY=${ARMINSTALLDIR}/usr/local/lib/libtinyxml2.so ../Fast-RTPS)
-	(cd build_fastrtps && make DESTDIR=${ARMINSTALLDIR} install)
+	(cd build_fastrtps && cmake -DCMAKE_TOOLCHAIN_FILE=../cmake_hexagon/toolchain/Toolchain-arm-linux-gnueabihf.cmake -DTHIRDPARTY=ON -DBUILD_JAVA=ON -DASIO_INCLUDE_DIR=`pwd`/../Fast-RTPS/thirdparty/asio/asio/include -DTINYXML2_INCLUDE_DIR=`pwd`/../Fast-RTPS/thirdparty/tinyxml2 -DTINYXML2_LIBRARY=${TINYXMLINSTALLDIR}/usr/local/lib/libtinyxml2.so ../Fast-RTPS)
+	(cd build_fastrtps && make DESTDIR=${FASTRTPSINSTALLDIR} install)
+	mkdir -p ${FASTRTPSINSTALLDIR}/usr/local/share/doc/fastrtps
+	mv ${FASTRTPSINSTALLDIR}/usr/local/share/fastrtps/LICENSE ${FASTRTPSINSTALLDIR}/usr/local/share/doc/fastrtps/LICENSE
 
-push-fastrtps: ${ARMINSTALLDIR}/usr/local/lib/libfastcdr.so ${ARMINSTALLDIR}/usr/local/lib/libfastrtps.so.1.4.0
-	(cd ${ARMINSTALLDIR} && find > ${TOPDIR}/fast-rtps-files)
-	adb push ${ARMINSTALLDIR}/. /
-	adb push fast-rtps-files /
+
+# Install options
+#
+# The files can be installed via adb, scp of a tar.gz, or as a Debian package
+push-fastrtps: ${FASTCDRINSTALLDIR}/usr/local/lib/libfastcdr.so ${FASTRTPSINSTALLDIR}/usr/local/lib/libfastrtps.so.1.4.0
+	(cd ${TINYXMLINSTALLDIR} && find > ${TOPDIR}/fast-cdr-files)
+	adb push ${TINYXMLINSTALLDIR}/. /
+	(cd ${FASTRTPSINSTALLDIR} && find > ${TOPDIR}/fast-rtps-files)
+	adb push ${FASTRTPSINSTALLDIR}/. /
+	(cd ${FASTCDRINSTALLDIR} && find > ${TOPDIR}/fast-cdr-files)
+	adb push ${FASTCDRINSTALLDIR}/. /
+	adb push fast-cdr-files /
 
 fastrtps.tgz:
-	(cd ${ARMINSTALLDIR} && tar -cvzf ${TOPDIR}/$@ .)
+	(cd ${FASTRTPSINSTALLDIR} && tar -cvzf ${TOPDIR}/$@ .)
+	(cd ${FASTCDRINSTALLDIR} && tar -avzf ${TOPDIR}/$@ .)
+	(cd ${TINYXMLINSTALLDIR} && tar -avzf ${TOPDIR}/$@ .)
+
+#	cp README.Debian ${FASTRTPSINSTALLDIR}/usr/local/share/fast-rtps/README.Debian
+
+package/libtinyxml2-dev_4.0.1-1_armhf.deb:
+	rm -rf $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr
+	(cp -ar ${TINYXMLINSTALLDIR}/* $(patsubst %_4.0.1-1_armhf.deb,%,$@))
+	rm $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/lib/*.so.*
+	(dpkg-deb --build $(patsubst %_4.0.1-1_armhf.deb,%,$@) $@)
+
+#	mkdir -p $(patsubst %_4.0.1-1_armhf.deb,%,$@)
+#(mv $(patsubst %_4.0.1-1_armhf.deb,%.deb,$@) $@)
+
+fastrtps-dev_0.1_armhf.deb:
+	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@)
+	mv $(patsubst %_0.1_armhf.deb,%.deb,$@) $@

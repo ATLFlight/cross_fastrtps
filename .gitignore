@@ -1,4 +1,8 @@
 build_tinyxml2/
 build_fastrtps/
 build_fastcdr/
-arminstalldir/
+fastcdrinstalldir/
+fastrtpsinstalldir/
+tinyxml2installdir/
+package/*.deb
+package/*/usr/
