@@ -22,8 +22,9 @@ submodules:
 	git submodule update --init --recursive
 
 clean:
-	rm -rf ${FASTRTPSINSTALLDIR} ${FASTCDRINSTALLDIR} build_fastrtps build_tinyxml2 build_fastcdr
-	rm -f *.deb
+	rm -rf ${TINYXMLINSTALLDIR} ${FASTRTPSINSTALLDIR} ${FASTCDRINSTALLDIR} build_fastrtps build_tinyxml2 build_fastcdr
+	rm -f package/*.deb
+	rm -rf package/*/usr
 
 ${FASTRTPSINSTALLDIR} ${FASTCDRINSTALLDIR} ${TINYXMLINSTALLDIR}:
 	mkdir -p $@
@@ -73,14 +74,47 @@ fastrtps.tgz:
 #	cp README.Debian ${FASTRTPSINSTALLDIR}/usr/local/share/fast-rtps/README.Debian
 
 package/libtinyxml2-dev_4.0.1-1_armhf.deb:
-	rm -rf $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr
-	(cp -ar ${TINYXMLINSTALLDIR}/* $(patsubst %_4.0.1-1_armhf.deb,%,$@))
-	rm $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/lib/*.so.*
-	(dpkg-deb --build $(patsubst %_4.0.1-1_armhf.deb,%,$@) $@)
+	@rm -rf $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr
+	@cp -ar ${TINYXMLINSTALLDIR}/* $(patsubst %_4.0.1-1_armhf.deb,%,$@)
+	@rm $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/lib/*.so.*
+	dpkg-deb --build $(patsubst %_4.0.1-1_armhf.deb,%,$@) $@
+
+package/libtinyxml2-4_4.0.1-1_armhf.deb:
+	@rm -rf $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr
+	@mkdir -p $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/lib
+	@mkdir -p $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/share/doc/libtinyxml2-4
+	@cp -ap ${TINYXMLINSTALLDIR}/usr/local/lib/*.so.* $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/lib
+	@cp -ap ${TINYXMLINSTALLDIR}/usr/local/share/doc/tinyxml2/* $(patsubst %_4.0.1-1_armhf.deb,%,$@)/usr/local/share/doc/libtinyxml2-4/
+	dpkg-deb --build $(patsubst %_4.0.1-1_armhf.deb,%,$@) $@
 
 #	mkdir -p $(patsubst %_4.0.1-1_armhf.deb,%,$@)
 #(mv $(patsubst %_4.0.1-1_armhf.deb,%.deb,$@) $@)
 
-fastrtps-dev_0.1_armhf.deb:
-	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@)
-	mv $(patsubst %_0.1_armhf.deb,%.deb,$@) $@
+package/libfastrtps-dev_0.1_armhf.deb:
+	@rm -rf $(patsubst %_0.1_armhf.deb,%,$@)/usr
+	@cp -av ${FASTRTPSINSTALLDIR}/. $(patsubst %_0.1_armhf.deb,%,$@)
+	@rm -rf $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/bin $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/lib/*.so.*
+	@mv $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/fastrtps $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastrtps-dev
+	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@) $@
+
+package/libfastrtps_0.1_armhf.deb:
+	@rm -rf $(patsubst %_0.1_armhf.deb,%,$@)/usr
+	@mkdir -p $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/lib
+	@mkdir -p $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastrtps
+	@cp -av ${FASTRTPSINSTALLDIR}/usr/local/lib/*.so.* $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/lib/
+	@cp -av ${FASTRTPSINSTALLDIR}/usr/local/share/doc/fastrtps/* $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastrtps/
+	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@) $@
+
+package/libfastcdr-dev_0.1_armhf.deb:
+	@rm -rf $(patsubst %_0.1_armhf.deb,%,$@)/usr
+	@cp -av ${FASTCDRINSTALLDIR}/. $(patsubst %_0.1_armhf.deb,%,$@)
+	@mv $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/fastcdr $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastcdr-dev
+	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@) $@
+
+package/libfastcdr_0.1_armhf.deb:
+	@rm -rf $(patsubst %_0.1_armhf.deb,%,$@)/usr
+	@mkdir -p $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/lib
+	@mkdir -p $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastcdr
+	@cp -av ${FASTCDRINSTALLDIR}/usr/local/lib/*.so.* $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/lib/
+	@cp -av ${FASTCDRINSTALLDIR}/usr/local/share/doc/fastcdr/* $(patsubst %_0.1_armhf.deb,%,$@)/usr/local/share/doc/libfastcdr/
+	dpkg-deb --build $(patsubst %_0.1_armhf.deb,%,$@) $@
