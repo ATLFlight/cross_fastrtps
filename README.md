@@ -64,5 +64,5 @@ make
 Now you can run it:
 ```
 ./bin/HelloWorldExample publisher &
-./binHelloWorldExample subscriber
+./bin/HelloWorldExample subscriber
 ```
