@@ -4,3 +4,6 @@
 [submodule "cmake_hexagon"]
 	path = cmake_hexagon
 	url = https://github.com/ATLFlight/cmake_hexagon.git
+[submodule "Fast-CDR"]
+	path = Fast-CDR
+	url = https://github.com/eProsima/Fast-CDR

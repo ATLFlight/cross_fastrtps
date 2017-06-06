@@ -1,3 +1,4 @@
 build_tinyxml2/
 build_fastrtps/
-installdir/
+build_fastcdr/
+arminstalldir/
