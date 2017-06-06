@@ -56,6 +56,7 @@ apt-get install openjdk-7-jdk
 Now you can build the Helloworld example:
 ```
 cd /usr/local/examples/C++/HelloWorldExample
+fastrtpsgen -example i86Linux2.6gcc -replace HelloWorld.idl
 make
 ```
 
