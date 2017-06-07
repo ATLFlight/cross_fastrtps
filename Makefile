@@ -64,6 +64,7 @@ debian-packages: package/libtinyxml2-4-dev_4.0.1-1_armhf.deb package/libtinyxml2
 	package/usr-local-lib_0.1_armhf.deb
 
 push-fastrtps: debian-packages
+	adb shell apt-get install openjdk-7-jre-headless
 	adb shell rm -rf /upload
 	adb shell mkdir -p /upload
 	adb push package/libtinyxml2-4-dev_4.0.1-1_armhf.deb /upload
