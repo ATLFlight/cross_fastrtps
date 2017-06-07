@@ -1,0 +1,14 @@
+Package: usr-local-lib
+Source: usr-local-lib
+Version: 0.1
+Architecture: armhf
+Maintainer: Mark Charlebois <charlebm@gmail.com>
+Original-Maintainer: Mark Charlebois <charlebm@gmail.com>
+Installed-Size: 0
+Depends: 
+Section: libs
+Priority: extra
+Multi-Arch: same
+Homepage: https://github.com/eProsima/Fast-CDR
+Description: Enable /usr/local/lib
+ This package adds /usr/local/lib to ld.so.conf.

@@ -1,4 +1,4 @@
-Package: libtinyxml2-dev
+Package: libtinyxml2-4-dev
 Source: tinyxml2
 Version: 4.0.1-1
 Architecture: armhf

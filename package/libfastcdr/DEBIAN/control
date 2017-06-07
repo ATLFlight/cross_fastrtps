@@ -1,19 +1,18 @@
-Package: libfastrtps
-Source: Fast-RTPS
+Package: libfastcdr
+Source: Fast-CDR
 Version: 0.1
 Architecture: armhf
 Maintainer: Mark Charlebois <charlebm@gmail.com>
 Original-Maintainer: Chow Loong Jin <hyperair@debian.org>
 Installed-Size: 69
-Depends: libc6 (>= 2.4), libgcc1 (>= 1:3.5), libtinyxml2-4
+Depends: libc6 (>= 2.4), libgcc1 (>= 1:3.5), usr-local-lib (= 0.1)
 Section: libs
 Priority: extra
 Multi-Arch: same
-Homepage: https://github.com/eProsima/Fast-RTPS
-Description: Fast-RTPS library
- This package contains the shared version of the Fast-RTPS library.
+Homepage: https://github.com/eProsima/Fast-CDR
+Description: Fast-CDR library
+ This package contains the shared version of the Fast-CDR library.
  .
- eprosima Fast RTPS is a C++ implementation of the RTPS (Real Time
- Publish Subscribe) protocol, which provides publisher-subscriber
- communications over unreliable transports such as UDP, as defined
- and maintained by the Object Management Group (OMG) consortium.
+ eProsima FastCDR is a C++ library that provides two serialization
+ mechanisms. One is the standard CDR serialization mechanism, while
+ the other is a faster implementation that modifies the standard.
